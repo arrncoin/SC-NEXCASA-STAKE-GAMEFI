@@ -13,10 +13,16 @@ module.exports = {
       chainId: 3940,
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
     },
+    sepolia: {
+      url: "https://sepolia.infura.io/v3/428b5b213558425e8cf19da6c1e8ca1b",
+      chainId: 11155111,
+      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
+    }
   },
   etherscan: {
     apiKey: {
       nexus: ETHERSCAN_API_KEY,
+      sepolia: ETHERSCAN_API_KEY,
     },
     customChains: [
       {
@@ -25,6 +31,14 @@ module.exports = {
         urls: {
           apiURL: "https://testnet3.explorer.nexus.xyz/api",
           browserURL: "https://testnet3.explorer.nexus.xyz",
+        },
+      },
+      {
+        network: "sepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://sepolia.etherscan.io",
         },
       },
     ],
