@@ -1,6 +1,7 @@
+// scripts/configureNftStaking.js
 const { ethers } = require("hardhat");
 
-// Fungsi helper untuk jeda
+// === Helper delay ===
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -9,10 +10,10 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Configuring tiers with account:", deployer.address);
 
-    // Alamat kontrak staking
-    const STAKING_ADDRESS = "0x8E04B4DF3deb5A34DA4daF69C9c83a8F36073777";
+    // === Alamat kontrak staking ===
+    const STAKING_ADDRESS = "0x3eaed605e43dB976818831bEFfee6b10904fb747";
 
-    // Token addresses
+    // === Token addresses ===
     const TOKENS = {
         NEX: ethers.ZeroAddress, // native token
         ncBTC: "0xA1A5987Cc7da36f4606A2a9F00DEb66A4e37734F",
@@ -21,58 +22,75 @@ async function main() {
         ncUSDC: "0x1381ceB65a8e6769658e84291CF28782bE4C2668",
     };
 
-    // Requirement tiap tier (1–9)
+    // === Requirement tiap tier (token) ===
     const REQUIREMENTS = {
-        1: { NEX: 0.01, ncBTC: 1, ncETH: 10, ncUSDT: 100, ncUSDC: 100, days: 1 },
-        2: { NEX: 0.05, ncBTC: 2, ncETH: 20, ncUSDT: 200, ncUSDC: 200, days: 2 },
-        3: { NEX: 0.1, ncBTC: 3, ncETH: 30, ncUSDT: 300, ncUSDC: 300, days: 3 },
-        4: { NEX: 0.2, ncBTC: 4, ncETH: 40, ncUSDT: 500, ncUSDC: 500, days: 4 },
-        5: { NEX: 0.4, ncBTC: 5, ncETH: 50, ncUSDT: 1000, ncUSDC: 1000, days: 5 },
-        6: { NEX: 0.8, ncBTC: 6, ncETH: 60, ncUSDT: 2000, ncUSDC: 2000, days: 6 },
-        7: { NEX: 1.2, ncBTC: 7, ncETH: 70, ncUSDT: 4000, ncUSDC: 4000, days: 7 },
-        8: { NEX: 2.5, ncBTC: 8, ncETH: 80, ncUSDT: 6000, ncUSDC: 6000, days: 8 },
-        9: { NEX: 5, ncBTC: 10, ncETH: 100, ncUSDT: 10000, ncUSDC: 10000, days: 9 },
+        1: { NEX: 0.01, ncBTC: 1, ncETH: 10, ncUSDT: 100, ncUSDC: 100 },
+        2: { NEX: 0.05, ncBTC: 2, ncETH: 20, ncUSDT: 200, ncUSDC: 200 },
+        3: { NEX: 0.1, ncBTC: 3, ncETH: 30, ncUSDT: 300, ncUSDC: 300 },
+        4: { NEX: 0.2, ncBTC: 4, ncETH: 40, ncUSDT: 500, ncUSDC: 500 },
+        5: { NEX: 0.4, ncBTC: 5, ncETH: 50, ncUSDT: 1000, ncUSDC: 1000 },
+        6: { NEX: 0.8, ncBTC: 6, ncETH: 60, ncUSDT: 2000, ncUSDC: 2000 },
+        7: { NEX: 1.6, ncBTC: 7, ncETH: 70, ncUSDT: 4000, ncUSDC: 4000 },
+        8: { NEX: 3.2, ncBTC: 8, ncETH: 80, ncUSDT: 6000, ncUSDC: 6000 },
+        9: { NEX: 7, ncBTC: 10, ncETH: 100, ncUSDT: 10000, ncUSDC: 10000 },
     };
 
+    // === Lockup menit tiap tier ===
+    const LOCKUP_MINUTES = [5, 10, 20, 40, 80, 160, 320, 640, 1280];
+
+    // Load staking contract
     const staking = await ethers.getContractAt("NexCasaGameStaking", STAKING_ADDRESS);
 
-    // 1. Whitelist all tokens
+    // === 1. Whitelist all tokens ===
     for (const token of Object.values(TOKENS)) {
-        let tx = await staking.setWhitelistToken(token, true);
+        const tx = await staking.setWhitelistToken(token, true);
         await tx.wait();
         console.log(`Whitelisted token: ${token}`);
-        await delay(500);
+        await delay(1000);
     }
 
-    // 2. Set requirements tier by tier
+    // === 2. Set requirements tier by tier ===
     for (let tier = 1; tier <= 9; tier++) {
         const req = REQUIREMENTS[tier];
 
         for (const [tokenName, amount] of Object.entries(req)) {
-            if (tokenName === "days") continue;
             const tokenAddr = TOKENS[tokenName];
 
-            // Add to tier check list
-            let tx1 = await staking.addTokenToTierCheckList(tier, tokenAddr);
-            await tx1.wait();
-            await delay(500);
+            // Add to tier checklist
+            let tx = await staking.addTokenToTierCheckList(tier, tokenAddr);
+            await tx.wait();
+            await delay(1000);
 
-            // Set requirement
-            let tx2 = await staking.setTierRequirement(tier, tokenAddr, ethers.parseUnits(amount.toString(), 18));
-            await tx2.wait();
-            await delay(500);
+            // Set requirement amount (uint256)
+            tx = await staking.setTierRequirement(
+                tier,
+                tokenAddr,
+                ethers.parseUnits(amount.toString(), 18)
+            );
+            await tx.wait();
+            await delay(1000);
 
             console.log(`Tier ${tier} requirement set: ${amount} ${tokenName}`);
         }
 
-        // Set lockup days
-        let tx3 = await staking.setTierLockup(tier, req.days);
-        await tx3.wait();
-        await delay(500);
-        console.log(`Tier ${tier} lockup set: ${req.days} days`);
+        // Set lockup in seconds
+        const lockupSec = LOCKUP_MINUTES[tier - 1] * 60;
+        const txLock = await staking.setTierLockup(tier, lockupSec);
+        await txLock.wait();
+        await delay(1000);
+        console.log(`Tier ${tier} lockup set: ${LOCKUP_MINUTES[tier - 1]} menit`);
     }
 
-    console.log("✅ All tiers configured successfully!");
+    // === 3. Transfer reward token to staking contract ===
+    const REWARD_TOKEN = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB";
+    const rewardToken = await ethers.getContractAt("IERC20", REWARD_TOKEN);
+    const rewardAmount = ethers.parseUnits("500000", 18); // 500K NEXCASA
+    console.log(`Transferring ${rewardAmount} NEXCASA to staking contract...`);
+    const txReward = await rewardToken.transfer(STAKING_ADDRESS, rewardAmount);
+    await txReward.wait();
+    console.log("✅ Reward tokens funded!");
+
+    console.log("🎉 All tiers configured successfully!");
 }
 
 main().catch((error) => {

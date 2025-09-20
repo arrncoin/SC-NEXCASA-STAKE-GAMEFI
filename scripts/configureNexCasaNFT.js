@@ -1,20 +1,24 @@
 // scripts/configureNexCasaNFT.js
 const { ethers } = require("hardhat");
 
+// === Helper delay ===
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function main() {
   // === Alamat Kontrak ===
-  const NFT_ADDRESS = "0x9C8EFe16f1C7Db0522fA886227bf6f2723a93564"; 
-  const GAME_STAKING_ADDRESS = "0x8E04B4DF3deb5A34DA4daF69C9c83a8F36073777";
+  const NFT_ADDRESS = "0xF380E156723f8D97278f8D0317FBDceEB01d34b5"; 
+  const GAME_STAKING_ADDRESS = "0x3eaed605e43dB976818831bEFfee6b10904fb747";
   const NEXCASA_TOKEN = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB";
 
-  // === Ambil instance kontrak ===
   const nft = await ethers.getContractAt("NexCasaNFT", NFT_ADDRESS);
+  const [deployer] = await ethers.getSigners();
 
   // Minimal ERC20 ABI
   const ERC20_ABI = [
     "function transfer(address to, uint256 amount) external returns (bool)"
   ];
-  const [deployer] = await ethers.getSigners();
   const nexCasaToken = new ethers.Contract(NEXCASA_TOKEN, ERC20_ABI, deployer);
 
   // === 1. Set staking contract ===
@@ -22,6 +26,7 @@ async function main() {
   const tx = await nft.setStakingContract(GAME_STAKING_ADDRESS);
   await tx.wait();
   console.log(`✅ Staking contract set to ${GAME_STAKING_ADDRESS}`);
+  await delay(1000); // jeda 1 detik
 
   // === 2. Set reward per tier (redemption) ===
   const REWARDS = {
@@ -41,14 +46,15 @@ async function main() {
     const tx2 = await nft.setRedemptionData(
       tier,
       NEXCASA_TOKEN,
-      ethers.parseUnits(REWARDS[tier].toString(), 18) // 18 desimal
+      ethers.parseUnits(REWARDS[tier].toString(), 18)
     );
     await tx2.wait();
     console.log(`✅ Redemption set for Tier ${tier}: ${REWARDS[tier]} NEXCASA`);
+    await delay(1000); // jeda 1 detik antar transaksi
   }
 
-  // === 3. Kirim saldo 5M NEXCASA ke kontrak NFT ===
-  const amount = "5000000";
+  // === 3. Kirim saldo 500k NEXCASA ke kontrak NFT ===
+  const amount = "500000";
   console.log(`Transferring ${amount} NEXCASA to NFT contract...`);
 
   const tx3 = await nexCasaToken.transfer(
@@ -56,8 +62,8 @@ async function main() {
     ethers.parseUnits(amount, 18)
   );
   await tx3.wait();
-
   console.log(`✅ Sent ${amount} NEXCASA to ${NFT_ADDRESS}`);
+
   console.log("🎉 NexCasaNFT configuration completed!");
 }
 

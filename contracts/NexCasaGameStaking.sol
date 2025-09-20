@@ -19,7 +19,7 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
 
     struct StakePosition {
         address owner;
-        uint256 lockupEnd;
+        uint256 lockupEnd; // timestamp
         uint8 tier; 
         mapping(address => uint256) stakedAmounts;
     }
@@ -29,7 +29,7 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
     INexCasaNFT public nftContract;
     mapping(address => bool) public whitelistedTokens;
     mapping(uint8 => mapping(address => uint256)) public tierRequirements;
-    mapping(uint8 => uint256) public tierRequiredLockupDays;
+    mapping(uint8 => uint256) public tierRequiredLockupMinutes;
     mapping(uint8 => address[]) public tierCheckTokens;
     mapping(uint256 => mapping(uint8 => bool)) public hasClaimedNft;
 
@@ -40,7 +40,7 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
     event NftClaimed(uint256 indexed stakeId, uint8 indexed tierId);
     event LockupReset(uint256 indexed stakeId);
     event TierRequirementSet(uint8 indexed tier, address indexed token, uint256 amount);
-    event TierLockupSet(uint8 indexed tier, uint256 _days);
+    event TierLockupSet(uint8 indexed tier, uint256 lockupMinutes);
 
     constructor() Ownable(msg.sender) {
         whitelistedTokens[NATIVE_TOKEN] = true;
@@ -59,17 +59,16 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
     }
 
     function setTierRequirement(uint8 _tier, address _token, uint256 _amount) external onlyOwner {
-        require(_tier > 0 && _tier <= MAX_TIER, "Staking: Tier must be between 1 and MAX_TIER");
-        require(whitelistedTokens[_token], "Staking: Token is not whitelisted");
+        require(_tier > 0 && _tier <= MAX_TIER, "Staking: Tier must be 1..MAX_TIER");
+        require(whitelistedTokens[_token], "Staking: Token not whitelisted");
         tierRequirements[_tier][_token] = _amount;
         emit TierRequirementSet(_tier, _token, _amount); 
     }
 
-    function setTierLockup(uint8 _tier, uint256 _days) external onlyOwner {
-        require(_tier > 0 && _tier <= MAX_TIER, "Staking: Tier must be between 1 and MAX_TIER");
-        require(_days <= 30, "Staking: Lockup cannot exceed 30 days");
-        tierRequiredLockupDays[_tier] = _days;
-        emit TierLockupSet(_tier, _days); 
+    function setTierLockup(uint8 _tier, uint256 _minutes) external onlyOwner {
+        require(_tier > 0 && _tier <= MAX_TIER, "Staking: Tier must be 1..MAX_TIER");
+        tierRequiredLockupMinutes[_tier] = _minutes;
+        emit TierLockupSet(_tier, _minutes); 
     }
     
     function addTokenToTierCheckList(uint8 _tier, address _token) external onlyOwner {
@@ -114,10 +113,10 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
 
     function addToStake(uint256 _stakeId, address _token, uint256 _amount) external payable whenNotPaused nonReentrant {
         StakePosition storage position = stakePositions[_stakeId];
-        require(position.owner == msg.sender, "Staking: Not your stake position");
-        require(block.timestamp >= position.lockupEnd, "Staking: Position is currently locked");
+        require(position.owner == msg.sender, "Staking: Not your stake");
+        require(block.timestamp >= position.lockupEnd, "Staking: Locked");
         require(whitelistedTokens[_token], "Staking: Token not whitelisted");
-        require(_amount > 0, "Staking: Amount must be > 0");
+        require(_amount > 0, "Staking: Amount must > 0");
 
         uint256 feeAmount = (_amount * 100) / 10000;
         uint256 amountToStake = _amount - feeAmount;
@@ -129,9 +128,9 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
         position.stakedAmounts[_token] += amountToStake;
 
         if (_token == NATIVE_TOKEN) {
-            require(msg.value == _amount, "Staking: Native value mismatch");
+            require(msg.value == _amount, "Staking: Native mismatch");
         } else {
-            require(msg.value == 0, "Staking: Do not send native token");
+            require(msg.value == 0, "Staking: Do not send native");
             IERC20(_token).transferFrom(msg.sender, address(this), _amount);
         }
         
@@ -141,17 +140,17 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
     
     function claimNft(uint256 _stakeId) external payable whenNotPaused nonReentrant {
         if (claimNftFee > 0) {
-            require(msg.value == claimNftFee, "Staking: Incorrect fee for claiming NFT");
+            require(msg.value == claimNftFee, "Staking: Incorrect fee");
             collectedFees[NATIVE_TOKEN] += msg.value;
         }
 
         StakePosition storage position = stakePositions[_stakeId];
         uint8 tierToClaim = position.tier;
-        require(position.owner == msg.sender, "Staking: Not your stake position");
-        require(tierToClaim > 0, "Staking: No tier achieved");
-        require(block.timestamp >= position.lockupEnd, "Staking: Lockup period has not ended yet");
-        require(address(nftContract) != address(0), "Staking: NFT contract not set");
-        require(!hasClaimedNft[_stakeId][tierToClaim], "Staking: NFT for this tier already claimed");
+        require(position.owner == msg.sender, "Staking: Not owner");
+        require(tierToClaim > 0, "Staking: No tier");
+        require(block.timestamp >= position.lockupEnd, "Staking: Lockup not ended");
+        require(address(nftContract) != address(0), "Staking: NFT not set");
+        require(!hasClaimedNft[_stakeId][tierToClaim], "Staking: NFT already claimed");
 
         hasClaimedNft[_stakeId][tierToClaim] = true;
         position.lockupEnd = block.timestamp;
@@ -163,11 +162,11 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
 
     function withdrawToken(uint256 _stakeId, address _token) external whenNotPaused nonReentrant {
         StakePosition storage position = stakePositions[_stakeId];
-        require(position.owner == msg.sender, "Staking: Not your stake position");
-        require(block.timestamp >= position.lockupEnd, "Staking: Position is not locked");
+        require(position.owner == msg.sender, "Staking: Not owner");
+        require(block.timestamp >= position.lockupEnd, "Staking: Locked");
 
         uint256 amount = position.stakedAmounts[_token];
-        require(amount > 0, "Staking: No amount of this token staked");
+        require(amount > 0, "Staking: No staked amount");
         
         position.stakedAmounts[_token] = 0;
         
@@ -180,6 +179,33 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
     }
 
     // ===================================
+    //        Fungsi Hapus Posisi Stake
+    // ===================================
+    function deleteStakePosition(uint256 _stakeId) external whenNotPaused nonReentrant {
+        StakePosition storage position = stakePositions[_stakeId];
+        require(position.owner == msg.sender, "Staking: Not owner");
+
+        // Tarik semua token yang di stake
+        address[] memory tokensToReturn = tierCheckTokens[position.tier];
+        for(uint i = 0; i < tokensToReturn.length; i++) {
+            address token = tokensToReturn[i];
+            uint256 amount = position.stakedAmounts[token];
+            if(amount > 0) {
+                position.stakedAmounts[token] = 0;
+                if(token == NATIVE_TOKEN) {
+                    payable(msg.sender).transfer(amount);
+                } else {
+                    IERC20(token).transfer(msg.sender, amount);
+                }
+                emit WithdrawnToken(_stakeId, token, amount);
+            }
+        }
+
+        // Hapus posisi stake
+        delete stakePositions[_stakeId];
+    }
+
+    // ===================================
     //        Fungsi Internal & View
     // ===================================
     function _updateTier(uint256 _stakeId) internal {
@@ -189,7 +215,7 @@ contract NexCasaGameStaking is Ownable, Pausable, ReentrancyGuard {
         
         if (_isTierAchieved(_stakeId, nextTier)) {
             position.tier = nextTier;
-            uint256 newLockupEnd = block.timestamp + (tierRequiredLockupDays[nextTier] * 1 days);
+            uint256 newLockupEnd = block.timestamp + (tierRequiredLockupMinutes[nextTier] * 1 minutes);
             position.lockupEnd = newLockupEnd;
             emit TierUpgraded(_stakeId, nextTier, newLockupEnd);
         }
