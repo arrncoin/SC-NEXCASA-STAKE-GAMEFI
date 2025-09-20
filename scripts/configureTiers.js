@@ -11,7 +11,7 @@ async function main() {
     console.log("Configuring tiers with account:", deployer.address);
 
     // === Alamat kontrak staking ===
-    const STAKING_ADDRESS = "0x3eaed605e43dB976818831bEFfee6b10904fb747";
+    const STAKING_ADDRESS = "0xCC6cDa268F88dD07E02d469405EbDc5F88f66b67";
 
     // === Token addresses ===
     const TOKENS = {
@@ -73,12 +73,12 @@ async function main() {
             console.log(`Tier ${tier} requirement set: ${amount} ${tokenName}`);
         }
 
-        // Set lockup in seconds
-        const lockupSec = LOCKUP_MINUTES[tier - 1] * 60;
-        const txLock = await staking.setTierLockup(tier, lockupSec);
+        // Set lockup in minutes
+        const lockupMin = LOCKUP_MINUTES[tier - 1];
+        const txLock = await staking.setTierLockup(tier, lockupMin);
         await txLock.wait();
         await delay(1000);
-        console.log(`Tier ${tier} lockup set: ${LOCKUP_MINUTES[tier - 1]} menit`);
+        console.log(`Tier ${tier} lockup set: ${lockupMin} menit`);
     }
 
     // === 3. Transfer reward token to staking contract ===
