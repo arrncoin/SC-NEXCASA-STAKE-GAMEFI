@@ -15,9 +15,9 @@ async function main() {
   const NC_USDC_ADDRESS = "0x1381ceB65a8e6769658e84291CF28782bE4C2668";
 
   // --- Alamat dari Fase 2 (Core Contracts) ---
-  const NFT_ADDRESS            = "0xBaF3a4713E4655e13850bc47948A5D04DC4d3304";
-  const GAME_STAKING_ADDRESS   = "0x8E04B4DF3deb5A34DA4daF69C9c83a8F36073777";
-  const NFT_STAKING_ADDRESS    = "0x60Edf6DF345cCE085839AC42c66DAa8c26e019FB";
+  const NFT_ADDRESS            = "0xF380E156723f8D97278f8D0317FBDceEB01d34b5";
+  const GAME_STAKING_ADDRESS   = "0x3eaed605e43dB976818831bEFfee6b10904fb747";
+  const NFT_STAKING_ADDRESS    = "0x7052d9B3e2B152E93510c31D1C9f445818fc0e72";
 
   // 1. Attach contract instances
   console.log("\nAttaching to existing core contracts...");

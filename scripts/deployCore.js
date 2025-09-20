@@ -10,10 +10,14 @@ async function main() {
     
     // 1. Deploy NexCasaNFT
     console.log("\nDeploying NexCasaNFT...");
-    const NexCasaNFT = await ethers.getContractFactory("NexCasaNFT");
-    const nft = await NexCasaNFT.deploy();
-    await nft.waitForDeployment();
-    console.log(`- NexCasaNFT deployed to: ${await nft.getAddress()}`);
+    const baseTokenURI = "https://red-military-crocodile-811.mypinata.cloud/ipfs/bafybeih2nl5ebh6dpk75xj24qhosnkoyeqqmchtmhrt46slal67rczqkri/";
+    const NexCasaNFT = await hre.ethers.getContractFactory("NexCasaNFT");
+    
+    const nexCasaNFT = await NexCasaNFT.deploy(baseTokenURI);
+    await nexCasaNFT.waitForDeployment();
+    const contractAddress = await nexCasaNFT.getAddress();
+  
+    console.log("NexCasaNFT deployed to:", contractAddress);
 
     console.log("Waiting 3 seconds...");
     await wait(3000);

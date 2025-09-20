@@ -5,7 +5,7 @@ const { ethers } = require("hardhat");
 async function main() {
   // === Alamat Kontrak ===
   const STAKING_ADDRESS = "0x60Edf6DF345cCE085839AC42c66DAa8c26e019FB"; // NexCasaNFTStaking
-  const NFT_ADDRESS = "0xBaF3a4713E4655e13850bc47948A5D04DC4d3304"; // NexCasaNFT
+  const NFT_ADDRESS = "0x9C8EFe16f1C7Db0522fA886227bf6f2723a93564"; // NexCasaNFT
   const REWARD_TOKEN = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB"; // NEXCASA ERC20
 
   // === Helper: hitung reward per hari ke per detik ===

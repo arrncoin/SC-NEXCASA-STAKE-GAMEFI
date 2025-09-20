@@ -54,14 +54,14 @@ npx hardhat run scripts/deployCore.js --network nexus
 
 ### Contoh hasil deploy:
 
-- **NexCasaNFT** → `0x9C8EFe16f1C7Db0522fA886227bf6f2723a93564`  
-- **NexCasaGameStaking** → `0x8E04B4DF3deb5A34DA4daF69C9c83a8F36073777`  
-- **NexCasaNFTStaking** → `0x60Edf6DF345cCE085839AC42c66DAa8c26e019FB`  
+- **NexCasaNFT** → `0xF380E156723f8D97278f8D0317FBDceEB01d34b5`  
+- **NexCasaGameStaking** → `0x3eaed605e43dB976818831bEFfee6b10904fb747`  
+- **NexCasaNFTStaking** → `0x7052d9B3e2B152E93510c31D1C9f445818fc0e72`  
 
 ### Verifikasi kontrak:
 
 ```bash
-npx hardhat verify --network nexus 0xBaF3a4713E4655e13850bc47948A5D04DC4d3304
+npx hardhat verify --network nexus 0x7052d9B3e2B152E93510c31D1C9f445818fc0e72
 ```
 
 ---
