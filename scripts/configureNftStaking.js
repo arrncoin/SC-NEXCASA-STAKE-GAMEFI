@@ -8,9 +8,9 @@ function delay(ms) {
 
 async function main() {
   // === Alamat Kontrak ===
-  const STAKING_ADDRESS = "0x7052d9B3e2B152E93510c31D1C9f445818fc0e72"; // NexCasaNFTStaking
-  const NFT_ADDRESS = "0xF380E156723f8D97278f8D0317FBDceEB01d34b5"; // NexCasaNFT
-  const REWARD_TOKEN = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB"; // NEXCASA ERC20
+  const STAKING_ADDRESS = "0x532b0D6B16A6B7352924DEfA999D901bD0Aa86Af"; // NexCasaNFTStaking
+  const NFT_ADDRESS = "0x62a647527683824615fc2493059683E44E0A6b1f"; // NexCasaNFT
+  const REWARD_TOKEN = "0x9049aab30D49bA7036dA27FA3FC18375b6341b45"; // NEXCASA ERC20
 
   // === Helper: hitung reward per hari ke per detik ===
   function rewardPerDay(amountPerDay) {

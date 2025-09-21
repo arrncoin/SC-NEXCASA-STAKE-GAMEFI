@@ -8,9 +8,9 @@ function delay(ms) {
 
 async function main() {
   // === Alamat Kontrak ===
-  const NFT_ADDRESS = "0xF380E156723f8D97278f8D0317FBDceEB01d34b5"; 
-  const GAME_STAKING_ADDRESS = "0x3eaed605e43dB976818831bEFfee6b10904fb747";
-  const NEXCASA_TOKEN = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB";
+  const NFT_ADDRESS = "0x62a647527683824615fc2493059683E44E0A6b1f"; 
+  const GAME_STAKING_ADDRESS = "0xF0C30aA46e3214D639DedBdAb69b6737fEDb47ba";
+  const NEXCASA_TOKEN = "0x9049aab30D49bA7036dA27FA3FC18375b6341b45";
 
   const nft = await ethers.getContractAt("NexCasaNFT", NFT_ADDRESS);
   const [deployer] = await ethers.getSigners();

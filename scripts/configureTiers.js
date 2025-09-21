@@ -11,15 +11,15 @@ async function main() {
     console.log("Configuring tiers with account:", deployer.address);
 
     // === Alamat kontrak staking ===
-    const STAKING_ADDRESS = "0xCC6cDa268F88dD07E02d469405EbDc5F88f66b67";
+    const GAME_ADDRESS = "0xF0C30aA46e3214D639DedBdAb69b6737fEDb47ba";
 
     // === Token addresses ===
     const TOKENS = {
         NEX: ethers.ZeroAddress, // native token
-        ncBTC: "0xA1A5987Cc7da36f4606A2a9F00DEb66A4e37734F",
-        ncETH: "0x7ceC127e4c5793BaeA2C5da5e8b6086f0D3A23f5",
-        ncUSDT: "0x7729Cbf0F8745fc5698adbD5B2D27b8C3C1ab23f",
-        ncUSDC: "0x1381ceB65a8e6769658e84291CF28782bE4C2668",
+        ncBTC: "0x447335Aa2D62bB917082b3833e56b416e78Ba43c",
+        ncETH: "0x3eC1E7ab0328606Bbb0AeDa392979072c830963f",
+        ncUSDT: "0x1DDDc56ccd817A0001352A6474255fF9B3DA1713",
+        ncUSDC: "0x9E7DD26455cc34Aa538e6C8F970df854f14e3B35",
     };
 
     // === Requirement tiap tier (token) ===
@@ -39,7 +39,7 @@ async function main() {
     const LOCKUP_MINUTES = [5, 10, 20, 40, 80, 160, 320, 640, 1280];
 
     // Load staking contract
-    const staking = await ethers.getContractAt("NexCasaGameStaking", STAKING_ADDRESS);
+    const staking = await ethers.getContractAt("NexCasaGame", GAME_ADDRESS);
 
     // === 1. Whitelist all tokens ===
     for (const token of Object.values(TOKENS)) {
@@ -82,7 +82,7 @@ async function main() {
     }
 
     // === 3. Transfer reward token to staking contract ===
-    const REWARD_TOKEN = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB";
+    const REWARD_TOKEN = "0x9049aab30D49bA7036dA27FA3FC18375b6341b45";
     const rewardToken = await ethers.getContractAt("IERC20", REWARD_TOKEN);
     const rewardAmount = ethers.parseUnits("500000", 18); // 500K NEXCASA
     console.log(`Transferring ${rewardAmount} NEXCASA to staking contract...`);

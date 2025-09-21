@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  const baseTokenURI = "https://red-military-crocodile-811.mypinata.cloud/ipfs/bafybeih2nl5ebh6dpk75xj24qhosnkoyeqqmchtmhrt46slal67rczqkri/";
+  const baseTokenURI = "https://red-military-crocodile-811.mypinata.cloud/ipfs/bafybeiamra3vle7uydjth5kqoeostwukmucxaqzah55jkuee5rcooqtbki/";
 
   const NexCasaNFT = await hre.ethers.getContractFactory("NexCasaNFT");
   

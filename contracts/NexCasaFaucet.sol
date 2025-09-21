@@ -3,8 +3,11 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract TokenFaucet is Ownable {
+contract NexCasaFaucet is Ownable {
+    using SafeERC20 for IERC20;
+
     struct TokenConfig {
         IERC20 token;
         uint256 amountPerClaim;
@@ -18,8 +21,10 @@ contract TokenFaucet is Ownable {
     event TokenConfigured(address indexed token, uint256 amountPerClaim, uint256 cooldownSeconds, bool enabled);
     event Claimed(address indexed token, address indexed user, uint256 amount);
 
+    /// @notice Constructor yang menerima alamat pemilik awal
     constructor(address initialOwner) Ownable(initialOwner) {}
 
+    /// @notice Set konfigurasi token faucet
     function setTokenConfig(
         address tokenAddr,
         uint256 amountPerClaim,
@@ -27,17 +32,20 @@ contract TokenFaucet is Ownable {
         bool enabled
     ) external onlyOwner {
         require(tokenAddr != address(0), "token 0");
+
         configs[tokenAddr] = TokenConfig({
             token: IERC20(tokenAddr),
             amountPerClaim: amountPerClaim,
             cooldownSeconds: cooldownSeconds,
             enabled: enabled
         });
+
         emit TokenConfigured(tokenAddr, amountPerClaim, cooldownSeconds, enabled);
     }
 
-    function claim(address tokenAddr) public {
-        TokenConfig memory cfg = configs[tokenAddr];
+    /// @notice Claim token tertentu
+    function claim(address tokenAddr) external {
+        TokenConfig storage cfg = configs[tokenAddr];
         require(cfg.enabled, "token not enabled");
         require(cfg.amountPerClaim > 0, "amount 0");
 
@@ -47,9 +55,9 @@ contract TokenFaucet is Ownable {
         uint256 bal = cfg.token.balanceOf(address(this));
         require(bal >= cfg.amountPerClaim, "faucet empty");
 
-        require(cfg.token.transfer(msg.sender, cfg.amountPerClaim), "transfer failed");
-
+        cfg.token.safeTransfer(msg.sender, cfg.amountPerClaim);
         nextClaimAt[tokenAddr][msg.sender] = block.timestamp + cfg.cooldownSeconds;
+
         emit Claimed(tokenAddr, msg.sender, cfg.amountPerClaim);
     }
 
@@ -57,31 +65,37 @@ contract TokenFaucet is Ownable {
     function claimAll(address[] calldata tokenAddrs) external {
         for (uint256 i = 0; i < tokenAddrs.length; i++) {
             address tokenAddr = tokenAddrs[i];
-            TokenConfig memory cfg = configs[tokenAddr];
+            TokenConfig storage cfg = configs[tokenAddr];
+
+            uint256 allowedAt = nextClaimAt[tokenAddr][msg.sender];
+            uint256 bal = cfg.token.balanceOf(address(this));
 
             if (
                 cfg.enabled &&
                 cfg.amountPerClaim > 0 &&
-                block.timestamp >= nextClaimAt[tokenAddr][msg.sender]
+                block.timestamp >= allowedAt &&
+                bal >= cfg.amountPerClaim
             ) {
-                uint256 bal = cfg.token.balanceOf(address(this));
-                if (bal >= cfg.amountPerClaim) {
-                    require(cfg.token.transfer(msg.sender, cfg.amountPerClaim), "transfer failed");
-                    nextClaimAt[tokenAddr][msg.sender] = block.timestamp + cfg.cooldownSeconds;
-                    emit Claimed(tokenAddr, msg.sender, cfg.amountPerClaim);
-                }
+                cfg.token.safeTransfer(msg.sender, cfg.amountPerClaim);
+                nextClaimAt[tokenAddr][msg.sender] = block.timestamp + cfg.cooldownSeconds;
+                emit Claimed(tokenAddr, msg.sender, cfg.amountPerClaim);
             }
         }
     }
 
+    /// @notice Withdraw token dari faucet (owner saja)
     function withdrawToken(address tokenAddr, address to, uint256 amount) external onlyOwner {
         require(to != address(0), "to 0");
-        IERC20(tokenAddr).transfer(to, amount);
+        uint256 bal = IERC20(tokenAddr).balanceOf(address(this));
+        require(amount <= bal, "insufficient balance");
+        IERC20(tokenAddr).safeTransfer(to, amount);
     }
 
+    /// @notice Withdraw ETH dari faucet (owner saja)
     function withdrawETH(address payable to, uint256 amount) external onlyOwner {
         require(to != address(0), "to 0");
-        to.transfer(amount);
+        (bool sent, ) = to.call{value: amount}("");
+        require(sent, "ETH transfer failed");
     }
 
     receive() external payable {}

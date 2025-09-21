@@ -3,11 +3,10 @@
 const { ethers } = require("hardhat");
 
 // !!! PASTE 5 ALAMAT TOKEN DARI FASE 1 DI SINI !!!
-// const NEXCASA_ADDRESS = "0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB";
-const NC_BTC_ADDRESS  = "0xA1A5987Cc7da36f4606A2a9F00DEb66A4e37734F";
-const NC_ETH_ADDRESS  = "0x7ceC127e4c5793BaeA2C5da5e8b6086f0D3A23f5";
-const NC_USDT_ADDRESS = "0x7729Cbf0F8745fc5698adbD5B2D27b8C3C1ab23f";
-const NC_USDC_ADDRESS = "0x1381ceB65a8e6769658e84291CF28782bE4C2668";
+const NC_BTC_ADDRESS  = "0x447335Aa2D62bB917082b3833e56b416e78Ba43c";
+const NC_ETH_ADDRESS  = "0x3eC1E7ab0328606Bbb0AeDa392979072c830963f";
+const NC_USDT_ADDRESS = "0x1DDDc56ccd817A0001352A6474255fF9B3DA1713";
+const NC_USDC_ADDRESS = "0x9E7DD26455cc34Aa538e6C8F970df854f14e3B35";
 // !!! --------------------------------------------- !!!
 
 async function main() {
@@ -16,16 +15,15 @@ async function main() {
 
   // 1. Deploy Faucet dengan constructor baru
   console.log("\nDeploying Faucet...");
-  const TokenFaucet = await ethers.getContractFactory("TokenFaucet");
+  const NexCasaFaucet = await ethers.getContractFactory("NexCasaFaucet");
   // Kirim alamat deployer sebagai initialOwner
-  const faucet = await TokenFaucet.deploy(deployer.address);
+  const faucet = await NexCasaFaucet.deploy(deployer.address);
   await faucet.waitForDeployment();
   const faucetAddress = await faucet.getAddress();
-  console.log(`- TokenFaucet deployed to: ${faucetAddress}`);
+  console.log(`- NexCasaFaucet deployed to: ${faucetAddress}`);
 
   // 2. Dapatkan instance dari kontrak token yang sudah ada
   console.log("\nAttaching to existing token contracts...");
-  // const nexcasaToken = await ethers.getContractAt("NexcasaToken", NEXCASA_ADDRESS);
   const ncBTC = await ethers.getContractAt("CustomERC20", NC_BTC_ADDRESS);
   const ncETH = await ethers.getContractAt("CustomERC20", NC_ETH_ADDRESS);
   const ncUSDT = await ethers.getContractAt("CustomERC20", NC_USDT_ADDRESS);
@@ -34,21 +32,15 @@ async function main() {
 
   // 3. Mendanai Faucet
   console.log("\nFunding the Faucet with tokens...");
-  // await (await nexcasaToken.transfer(faucetAddress, ethers.parseUnits("10000000", 18))).wait();
-  await (await ncBTC.transfer(faucetAddress, ethers.parseUnits("1000", 18))).wait();
-  await (await ncETH.transfer(faucetAddress, ethers.parseUnits("10000", 18))).wait();
-  await (await ncUSDT.transfer(faucetAddress, ethers.parseUnits("1000000", 18))).wait();
-  await (await ncUSDC.transfer(faucetAddress, ethers.parseUnits("1000000", 18))).wait();
+  await (await ncBTC.transfer(faucetAddress, ethers.parseUnits("10000", 18))).wait();
+  await (await ncETH.transfer(faucetAddress, ethers.parseUnits("100000", 18))).wait();
+  await (await ncUSDT.transfer(faucetAddress, ethers.parseUnits("10000000", 18))).wait();
+  await (await ncUSDC.transfer(faucetAddress, ethers.parseUnits("10000000", 18))).wait();
   console.log("- Faucet has been funded.");
 
   // 4. Konfigurasi setiap token menggunakan setTokenConfig
   console.log("\nConfiguring Faucet for each token...");
   const cooldown24h = 86400; // 24 jam dalam detik
-
-  // Konfigurasi NEXCASA
-  /* let dripAmount = ethers.parseUnits("1000", 18);
-  await (await faucet.setTokenConfig(NEXCASA_ADDRESS, dripAmount, cooldown24h, true)).wait();
-  console.log("- $NEXCASA configured."); */
 
   // Konfigurasi ncBTC
   dripAmount = ethers.parseUnits("0.01", 8);

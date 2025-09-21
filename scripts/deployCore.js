@@ -10,7 +10,7 @@ async function main() {
     
     // 1. Deploy NexCasaNFT
     console.log("\nDeploying NexCasaNFT...");
-    const baseTokenURI = "https://red-military-crocodile-811.mypinata.cloud/ipfs/bafybeih2nl5ebh6dpk75xj24qhosnkoyeqqmchtmhrt46slal67rczqkri/";
+    const baseTokenURI = "https://red-military-crocodile-811.mypinata.cloud/ipfs/bafybeiamra3vle7uydjth5kqoeostwukmucxaqzah55jkuee5rcooqtbki/";
     const NexCasaNFT = await hre.ethers.getContractFactory("NexCasaNFT");
     
     const nexCasaNFT = await NexCasaNFT.deploy(baseTokenURI);
@@ -23,11 +23,11 @@ async function main() {
     await wait(3000);
 
     // 2. Deploy NexCasaGameStaking
-    console.log("\nDeploying NexCasaGameStaking...");
-    const NexCasaGameStaking = await ethers.getContractFactory("NexCasaGameStaking");
-    const gameStaking = await NexCasaGameStaking.deploy();
+    console.log("\nDeploying NexCasaGame...");
+    const NexCasaGame = await ethers.getContractFactory("NexCasaGame");
+    const gameStaking = await NexCasaGame.deploy();
     await gameStaking.waitForDeployment();
-    console.log(`- NexCasaGameStaking deployed to: ${await gameStaking.getAddress()}`);
+    console.log(`- NexCasaGame deployed to: ${await gameStaking.getAddress()}`);
 
     console.log("Waiting 3 seconds...");
     await wait(3000);

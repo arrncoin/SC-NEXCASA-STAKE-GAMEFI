@@ -1,6 +1,7 @@
 # NexCasa Game Staking Project V1
 
-Dokumentasi resmi untuk deployment ekosistem **NexCasa Game + Staking** di jaringan `nexus`.
+Dokumentasi resmi untuk deployment ekosistem **NexCasa Game + Staking** di jaringan `nexus`.  
+🌐 Website: [https://nexcasa.vercel.app/](https://nexcasa.vercel.app/)
 
 ---
 
@@ -12,19 +13,19 @@ Jalankan perintah berikut:
 npx hardhat run scripts/deployTokens.js --network nexus
 ```
 
-### Contoh hasil deploy:
+### Contoh hasil deploy
 
-- **NexcasaToken ($NEXCASA)** → `0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB`  
-- **CustomERC20 (ncBTC)** → `0xA1A5987Cc7da36f4606A2a9F00DEb66A4e37734F`  
-- **CustomERC20 (ncETH)** → `0x7ceC127e4c5793BaeA2C5da5e8b6086f0D3A23f5`  
-- **CustomERC20 (ncUSDT)** → `0x7729Cbf0F8745fc5698adbD5B2D27b8C3C1ab23f`  
-- **CustomERC20 (ncUSDC)** → `0x1381ceB65a8e6769658e84291CF28782bE4C2668`  
+- **NexcasaToken ($NEXCASA)** → `0x9049aab30D49bA7036dA27FA3FC18375b6341b45`  
+- **CustomERC20 (ncBTC)** → `0x447335Aa2D62bB917082b3833e56b416e78Ba43c`  
+- **CustomERC20 (ncETH)** → `0x3eC1E7ab0328606Bbb0AeDa392979072c830963f`  
+- **CustomERC20 (ncUSDT)** → `0x1DDDc56ccd817A0001352A6474255fF9B3DA1713`  
+- **CustomERC20 (ncUSDC)** → `0x9E7DD26455cc34Aa538e6C8F970df854f14e3B35`  
 
 ---
 
 ## ✅ Verifikasi Token
 
-### Verifikasi manual:
+### Verifikasi manual
 
 ```bash
 npx hardhat verify --network nexus <ALAMAT_TOKEN> <SUPPLY>
@@ -33,10 +34,10 @@ npx hardhat verify --network nexus <ALAMAT_TOKEN> <SUPPLY>
 **Contoh:**
 
 ```bash
-npx hardhat verify --network nexus 0xa09B15252831D47cF85c159bC72cfC45F0D1bBEB 250000000000000000000000000
+npx hardhat verify --network nexus 0x9E7DD26455cc34Aa538e6C8F970df854f14e3B35 250000000000000000000000000
 ```
 
-### Verifikasi melalui script:
+### Verifikasi melalui script
 
 ```bash
 npx hardhat run scripts/verifyTokens.js --network nexus
@@ -52,16 +53,16 @@ Deploy kontrak inti:
 npx hardhat run scripts/deployCore.js --network nexus
 ```
 
-### Contoh hasil deploy:
+### Contoh hasil deploy
 
-- **NexCasaNFT** → `0xF380E156723f8D97278f8D0317FBDceEB01d34b5`  
-- **NexCasaGameStaking** → `0xCC6cDa268F88dD07E02d469405EbDc5F88f66b67`  
-- **NexCasaNFTStaking** → `0x7052d9B3e2B152E93510c31D1C9f445818fc0e72`  
+- **NexCasaNFT** → `0x62a647527683824615fc2493059683E44E0A6b1f`  
+- **NexCasaGame** → `0xF0C30aA46e3214D639DedBdAb69b6737fEDb47ba`  
+- **NexCasaNFTStaking** → `0x532b0D6B16A6B7352924DEfA999D901bD0Aa86Af`  
 
-### Verifikasi kontrak:
+### Verifikasi kontrak
 
 ```bash
-npx hardhat verify --network nexus 0x7052d9B3e2B152E93510c31D1C9f445818fc0e72
+npx hardhat verify --network nexus 0x532b0D6B16A6B7352924DEfA999D901bD0Aa86Af
 ```
 
 ---
@@ -74,7 +75,7 @@ Deploy faucet:
 npx hardhat run scripts/deployFaucet.js --network nexus
 ```
 
-### Verifikasi kontrak faucet:
+### Verifikasi kontrak faucet
 
 ```bash
 npx hardhat verify --network nexus <SMART_CONTRACT> <OWNER_ADDRESS>
@@ -88,7 +89,7 @@ npx hardhat verify --network nexus 0xcB169BdBE884D15622A70214Ee04bec17be3fCE7 0x
 
 ---
 
-## 🔧 Konfigurasi Akhir (Final Step)
+## 🔧 Konfigurasi Akhir
 
 Konfigurasi semua kontrak agar saling terhubung:
 
@@ -116,3 +117,11 @@ Core contracts are now linked and configured.
 ## ✨ Penutup
 
 Dengan semua langkah di atas, ekosistem **Game Staking Project V1** siap dijalankan 🚀
+
+---
+
+## 📢 Kontak
+
+- X: [@kridopratomo90](https://x.com/kridopratomo90)  
+- YouTube: [kridopratomo](https://youtube.com/kridopratomo)  
+- Telegram: [@kridopratomo90](https://telegram.com/kridopratomo90)  
