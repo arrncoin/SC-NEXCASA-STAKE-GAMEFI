@@ -124,4 +124,4 @@ Dengan semua langkah di atas, ekosistem **Game Staking Project V1** siap dijalan
 
 - X: [@kridopratomo90](https://x.com/kridopratomo90)  
 - YouTube: [kridopratomo](https://youtube.com/kridopratomo)  
-- Telegram: [@KridoPratomo](https://t.me/@KridoPratomo)  
+- Telegram: [@KridoPratomo](https://t.me/KridoPratomo)  
